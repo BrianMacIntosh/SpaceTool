@@ -77,6 +77,7 @@ namespace CataclysmModder
             data = new Dictionary<string, object>(copy.data);
             int lastitem = 0;
             foreach (ItemDataWrapper i in Storage.OpenItems)
+            {
                 if (i.Display.StartsWith(copy.Display))
                 {
                     try
@@ -88,8 +89,8 @@ namespace CataclysmModder
 
                     }
                 }
+            }
 
-            //TODO: support raw arrays (skills)
             data[MemberOf.displayMember] = copy.Display + (lastitem + 1);
         }
 
@@ -115,6 +116,7 @@ namespace CataclysmModder
             data = new Dictionary<string, object>();
             int lastitem = 0;
             foreach (ItemDataWrapper i in Storage.OpenItems)
+            {
                 if (i.Display.StartsWith("newitem"))
                 {
                     try
@@ -126,8 +128,7 @@ namespace CataclysmModder
 
                     }
                 }
-
-            //TODO: support raw arrays (skills)
+            }
             data[MemberOf.displayMember] = "newitem" + (lastitem + 1);
         }
     }
@@ -142,6 +143,7 @@ namespace CataclysmModder
         public static bool UnsavedChanges { get { return unsavedChanges; } }
         
         private static string workspacePath = "";
+        public static string WorkingDirectory { get { return workspacePath; } }
 
         private static int currentFileIndex = -1;
         public static string CurrentFileName
@@ -202,38 +204,18 @@ namespace CataclysmModder
         {
             string filename = Path.GetFileName(name);
             string[] filedirs = name.Split(Path.DirectorySeparatorChar);
-            if (filedirs.Length > 1 && filedirs[filedirs.Length - 2].Equals("items"))
-                return FileType.ITEMS;
-            else if (filename.Equals("bionics.json"))
-                return FileType.BIONICS;
-            else if (filename.Equals("item_groups.json"))
-                return FileType.ITEM_GROUPS;
-            else if (filename.Equals("materials.json"))
-                return FileType.MATERIALS;
-            else if (filename.Equals("monstergroups.json"))
-                return FileType.MONSTER_GROUPS;
-            else if (filename.Equals("names.json"))
-                return FileType.NAMES;
-            else if (filename.Equals("professions.json"))
-                return FileType.PROFESSIONS;
-            else if (filename.Equals("recipes.json"))
-                return FileType.RECIPES;
-            else if (filename.Equals("skills.json"))
-                return FileType.SKILLS;
-            else if (filename.Equals("snippets.json"))
-                return FileType.SNIPPETS;
-            else if (filename.Equals("dreams.json"))
-                return FileType.DREAMS;
-            else if (filename.Equals("mutations.json"))
-                return FileType.MUTATIONS;
-            else if (filename.Equals("martialarts.json"))
-                return FileType.MARTIAL_ARTS;
-            else if (filename.Equals("techniques.json"))
-                return FileType.TECHNIQUES;
-            else if (filename.Equals("vehicle_parts.json"))
-                return FileType.VEHICLE_PARTS;
-            else if (filename.Equals("vehicles.json"))
-                return FileType.VEHICLES;
+            if (filename.Equals("ship.json"))
+                return FileType.SHIPS;
+            else if (filename.Equals("weapon.json"))
+                return FileType.WEAPONS;
+            else if (filename.Equals("element.json"))
+                return FileType.MAPELEMENTS;
+            else if (filedirs[0].Equals("map"))
+                return FileType.MAP;
+            else if (filename.Equals("projectile.json"))
+                return FileType.PROJECTILES;
+            else if (filename.Equals("definition.json"))
+                return FileType.DEFINITION;
             else
                 return FileType.NONE;
         }
@@ -265,8 +247,7 @@ namespace CataclysmModder
         public static object[] CraftCategories = new object[0];
         private static List<ItemDataWrapper> RecipeUnknown = new List<ItemDataWrapper>();
 
-        public static AutoCompleteStringCollection AutocompleteItemSource = new AutoCompleteStringCollection();
-        public static AutoCompleteStringCollection AutocompleteBookSource = new AutoCompleteStringCollection();
+        //public static AutoCompleteStringCollection AutocompleteItemSource = new AutoCompleteStringCollection();
 
 
         private static List<string>[] PresetDataSources = new List<string>[(int)JsonFormTag.DataSourceType.PRESET_COUNT];
@@ -274,22 +255,12 @@ namespace CataclysmModder
 
         public enum FileType
         {
-            ITEMS,
-            BIONICS,
-            ITEM_GROUPS,
-            MATERIALS,
-            MONSTER_GROUPS,
-            NAMES,
-            PROFESSIONS,
-            RECIPES,
-            SKILLS,
-            SNIPPETS,
-            DREAMS,
-            MUTATIONS,
-            MARTIAL_ARTS,
-            TECHNIQUES,
-            VEHICLE_PARTS,
-            VEHICLES,
+            SHIPS,
+            WEAPONS,
+            PROJECTILES,
+            MAPELEMENTS,
+            MAP,
+            DEFINITION,
             NONE,
 
             COUNT
@@ -320,32 +291,12 @@ namespace CataclysmModder
 
             //Editing control needs to be set in Form1 ctor using FileDefSetControl
 
-            fileDef[(int)FileType.ITEMS] = new CataFile(
-                "id",
-                new JsonSchema("CataclysmModder.schemas.items.txt"));
-            fileDef[(int)FileType.BIONICS] = new CataFile("id");
-            fileDef[(int)FileType.ITEM_GROUPS] = new CataFile(
-                "id",
-                new JsonSchema("CataclysmModder.schemas.item_group.txt"));
-            fileDef[(int)FileType.MATERIALS] = new CataFile("ident");
-            fileDef[(int)FileType.MONSTER_GROUPS] = new CataFile("name");
-            fileDef[(int)FileType.NAMES] = new CataFile("name");
-            fileDef[(int)FileType.PROFESSIONS] = new CataFile(
-                "ident",
-                new JsonSchema("CataclysmModder.schemas.professions.txt"));
-            fileDef[(int)FileType.RECIPES] = new CataFile(
-                "result",
-                "id_suffix",
-                new JsonSchema("CataclysmModder.schemas.recipes.txt"));
-            fileDef[(int)FileType.SKILLS] = new CataFile("ident");
-            fileDef[(int)FileType.SNIPPETS] = null;
-            fileDef[(int)FileType.NONE] = null;
-            fileDef[(int)FileType.DREAMS] = null;
-            fileDef[(int)FileType.MUTATIONS] = new CataFile("id");
-            fileDef[(int)FileType.MARTIAL_ARTS] = new CataFile("id");
-            fileDef[(int)FileType.TECHNIQUES] = new CataFile("id");
-            fileDef[(int)FileType.VEHICLE_PARTS] = new CataFile("id");
-            fileDef[(int)FileType.VEHICLES] = new CataFile("id");
+            fileDef[(int)FileType.SHIPS] = new CataFile("id");
+            fileDef[(int)FileType.WEAPONS] = new CataFile("id");
+            fileDef[(int)FileType.PROJECTILES] = new CataFile("id");
+            fileDef[(int)FileType.MAPELEMENTS] = new CataFile("id");
+            fileDef[(int)FileType.MAP] = new CataFile();
+            fileDef[(int)FileType.DEFINITION] = new CataFile();
         }
 
         public static void FileDefSetControl(FileType type, Control control)
@@ -371,9 +322,8 @@ namespace CataclysmModder
                 //case ListChangedType.ItemChanged:
                 case ListChangedType.ItemDeleted:
                     //Rebuild autocomplete list
-                    ItemDataWrapper added;
+                    /*ItemDataWrapper added;
                     AutocompleteItemSource.Clear();
-                    AutocompleteBookSource.Clear();
                     for (int c = 0; c < openItems.Count; c++)
                     {
                         if (GetFileTypeForOpenFile(c) == FileType.ITEMS
@@ -382,22 +332,16 @@ namespace CataclysmModder
                             for (int d = 0; d < openItems[c].Count; d++)
                             {
                                 added = openItems[c][d];
-                                if (added.data.ContainsKey("type")
-                                    && added.data["type"].ToString().ToLower() == "book")
-                                    AutocompleteBookSource.Add(added.Display);
                                 AutocompleteItemSource.Add(added.Display);
                             }
                         }
-                    }
+                    }*/
                     break;
 
                 case ListChangedType.ItemAdded:
                     //Update autocomplete list
-                    added = ((BindingList<ItemDataWrapper>)sender)[e.NewIndex];
-                    if (added.data.ContainsKey("type")
-                        && added.data["type"].ToString().ToLower() == "book")
-                        AutocompleteBookSource.Add(added.Display);
-                    AutocompleteItemSource.Add(added.Display);
+                    /*added = ((BindingList<ItemDataWrapper>)sender)[e.NewIndex];
+                    AutocompleteItemSource.Add(added.Display);*/
                     break;
             }
         }
@@ -455,43 +399,13 @@ namespace CataclysmModder
                 //Not supported
 
             }
-            else if (ftype == FileType.RECIPES)
+            else if (ftype == FileType.MAP)
             {
-                //Default parsing
-                foreach (Dictionary<string, object> item in (object[])((Dictionary<string, object>)json)["recipes"])
-                    newItems.Add(new ItemDataWrapper(item, index));
 
-                //Remove categories
-                CraftCategories = (object[])((Dictionary<string, object>)json)["categories"];
-                /*List<string> craftcats = new List<string>();
-                foreach (ItemDataWrapper c in newItems)
-                {
-                    if (c.data["type"].Equals("recipe_category"))
-                        craftcats.Add((string)c.data["type"]);
-                }
-                CraftCategories = craftcats.ToArray();
-
-                //Remove items with unknown type
-                RecipeUnknown.Clear();
-                for (int c = newItems.Count - 1; c >= 0; c--)
-                    if (!newItems[c].data["type"].Equals("recipe"))
-                    {
-                        RecipeUnknown.Add(newItems[c]);
-                        newItems.RemoveAt(c);
-                    }*/
             }
-            else if (ftype == FileType.SKILLS)
+            else if (ftype == FileType.DEFINITION)
             {
-                foreach (object[] item in (object[])json)
-                {
-                    Dictionary<string, object> dict = new Dictionary<string, object>();
-                    dict.Add("ident", item[0]);
-                    dict.Add("name", item[1]);
-                    dict.Add("description", item[2]);
-                    if (item.Length > 3)
-                        dict.Add("tags", item[3]);
-                    newItems.Add(new ItemDataWrapper(dict, index));
-                }
+
             }
             else if (ftype != FileType.NONE)
             {
@@ -500,38 +414,10 @@ namespace CataclysmModder
                     newItems.Add(new ItemDataWrapper(item, index));
             }
 
-            /*else if (ftype != FileType.NONE)
-            {
-                //Default parsing
-                foreach (Dictionary<string, object> item in (object[])json)
-                    newItems.Add(new ItemDataWrapper(item, index));
-            }
-
-            if (ftype == FileType.RECIPES)
-            {
-                //Remove categories
-                List<string> craftcats = new List<string>();
-                foreach (ItemDataWrapper c in newItems)
-                {
-                    if (c.data["type"].Equals("recipe_category"))
-                        craftcats.Add((string)c.data["type"]);
-                }
-                CraftCategories = craftcats.ToArray();
-
-                //Remove items with unknown type
-                RecipeUnknown.Clear();
-                for (int c = newItems.Count - 1; c >= 0; c--)
-                    if (!newItems[c].data["type"].Equals("recipe"))
-                    {
-                        RecipeUnknown.Add(newItems[c]);
-                        newItems.RemoveAt(c);
-                    }
-            }*/
-
             //Subscribe to events
-            if (GetFileTypeForOpenFile(index) == FileType.ITEMS
+            /*if (GetFileTypeForOpenFile(index) == FileType.ITEMS
                 || GetFileTypeForOpenFile(index) == FileType.BIONICS)
-                newItems.ListChanged += AutocompleteNeedsModified;
+                newItems.ListChanged += AutocompleteNeedsModified;*/
 
             //Rebuild autocomplete
             AutocompleteNeedsModified(newItems, new ListChangedEventArgs(ListChangedType.Reset, 0));
@@ -570,10 +456,6 @@ namespace CataclysmModder
 
         public static void SaveJsonItem(string file, object obj, JsonSchema schema, string pivotKey, int bracketBlockLevel = 1)
         {
-            //TODO: remove in next version
-            if (GetFileType(file) == FileType.SKILLS)
-                return;
-
             StreamWriter write = new StreamWriter(new FileStream(Path.Combine(workspacePath, file), FileMode.Create));
             try
             {
@@ -588,53 +470,6 @@ namespace CataclysmModder
                 sb.Remove(sb.Length - 1, 1);
 
                 sb.Append("]");
-
-                if (Options.DontFormatJson)
-                    write.Write(sb.ToString());
-                else
-                    write.Write(SpaceJson(sb.ToString(), bracketBlockLevel));
-            }
-            catch (ArgumentException)
-            {
-                //TODO: error message
-                return;
-            }
-            finally
-            {
-                write.Close();
-            }
-        }
-
-        public static void SaveJsonRecipes(string file, object obj, JsonSchema schema, string pivotKey, int bracketBlockLevel = 3)
-        {
-            StreamWriter write = new StreamWriter(new FileStream(Path.Combine(workspacePath, file), FileMode.Create));
-            try
-            {
-                StringBuilder sb = new StringBuilder("{\"categories\":[");
-
-                //Unknown stuff
-                /*for (int c = 0; c < RecipeUnknown.Count; c++)
-                {
-                    Dictionary<string, object> item = RecipeUnknown[c].data;
-                    string type = (item.ContainsKey(pivotKey) ? (string)item[pivotKey] : "");
-                    sb.Append(schema.Serialize(item, type));
-                    sb.Append(",");
-                }*/
-                sb.Append("\"" + string.Join("\",\"", CraftCategories) + "\"");
-
-                sb.Append("],\"recipes\":[");
-
-                //Recipes
-                foreach (Dictionary<string, object> item in (object[])obj)
-                {
-                    string type = (item.ContainsKey(pivotKey) ? (string)item[pivotKey] : "");
-                    sb.Append(schema.Serialize(item, type));
-                    sb.Append(",");
-                }
-                //Remove last comma
-                sb.Remove(sb.Length - 1, 1);
-
-                sb.Append("]}");
 
                 if (Options.DontFormatJson)
                     write.Write(sb.ToString());
@@ -831,19 +666,7 @@ namespace CataclysmModder
 
         private static bool Serialize(object[] serialData, string file, FileType ftype)
         {
-            if (ftype == FileType.RECIPES)
-            {
-                SaveJsonRecipes(file, serialData, fileDef[(int)ftype].schema, "");
-            }
-            else if (ftype == FileType.ITEMS)
-            {
-                SaveJsonItem(file, serialData, fileDef[(int)ftype].schema, "type");
-            }
-            else if (ftype == FileType.ITEM_GROUPS)
-            {
-                SaveJsonItem(file, serialData, fileDef[(int)ftype].schema, "", 2);
-            }
-            else if (ftype != FileType.NONE
+            if (ftype != FileType.NONE
                 && fileDef[(int)ftype] != null && fileDef[(int)ftype].schema != null)
             {
                 SaveJsonItem(file, serialData, fileDef[(int)ftype].schema, "");
@@ -879,203 +702,9 @@ namespace CataclysmModder
 
         #region Data Source Getters
 
-        public static string[] GetMaterialNames()
-        {
-            for (int c = 0; c < openFiles.Length; c++)
-            {
-                if (GetFileType(Path.GetFileName(openFiles[c])) == FileType.MATERIALS)
-                {
-                    string[] ret = new string[openItems[c].Count];
-                    for (int d = 0; d < openItems[c].Count; d++)
-                        ret[d] = (string)openItems[c][d].data["ident"];
-                    return ret;
-                }
-            }
-            return new string[0];
-        }
-
-        public static string[] GetTechniques()
-        {
-            for (int c = 0; c < openFiles.Length; c++)
-            {
-                if (GetFileType(Path.GetFileName(openFiles[c])) == FileType.TECHNIQUES)
-                {
-                    string[] ret = new string[openItems[c].Count];
-                    for (int d = 0; d < openItems[c].Count; d++)
-                        ret[d] = (string)openItems[c][d].data["id"];
-                    return ret;
-                }
-            }
-            return new string[0];
-        }
-
-        public static string[] GetSkills()
-        {
-            for (int c = 0; c < openFiles.Length; c++)
-            {
-                if (GetFileType(Path.GetFileName(openFiles[c])) == FileType.SKILLS)
-                {
-                    string[] ret = new string[openItems[c].Count + 1];
-                    ret[0] = "none";
-                    for (int d = 0; d < openItems[c].Count; d++)
-                        ret[d + 1] = (string)openItems[c][d].data["ident"];
-                    return ret;
-                }
-            }
-            return new string[0];
-        }
-
-        public static string[] GetGunSkills()
-        {
-            for (int c = 0; c < openFiles.Length; c++)
-            {
-                if (GetFileType(Path.GetFileName(openFiles[c])) == FileType.SKILLS)
-                {
-                    List<string> ret = new List<string>();
-                    ret.Add("none");
-                    foreach (ItemDataWrapper skill in openItems[c])
-                    {
-                        if (skill.data.ContainsKey("tags"))
-                        {
-                            foreach (string f in (object[])skill.data["tags"])
-                            {
-                                if (f.Equals("gun_type"))
-                                {
-                                    ret.Add((string)skill.data["ident"]);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    return ret.ToArray();
-                }
-            }
-            return new string[0];
-        }
-
-        public static string[] GetCraftCategories()
-        {
-            string[] ret = new string[CraftCategories.Length];
-            CraftCategories.CopyTo(ret, 0);
-            return ret;
-        }
-
         private static void InitializeDataSources()
         {
-            List<string> buffer = new List<string>();
-            buffer.Add("nicotine");
-            buffer.Add("caffeine");
-            buffer.Add("alcohol");
-            buffer.Add("sleeping pill");
-            buffer.Add("opiate");
-            buffer.Add("amphetamine");
-            buffer.Add("cocaine");
-            buffer.Add("crack");
-            PresetDataSources[(int)JsonFormTag.DataSourceType.ADDICTION_TYPES] = buffer;
-
-            buffer = new List<string>();
-            buffer.Add("EXPLOSIVE");
-            buffer.Add("EXPLOSIVE_BIG");
-            buffer.Add("EXPLOSIVE_HUGE");
-            buffer.Add("FLAME");
-            buffer.Add("INCENDIARY");
-            buffer.Add("IGNITE");
-            buffer.Add("BOUNCE");
-            buffer.Add("FRAG");
-            buffer.Add("NAPALM");
-            buffer.Add("NAPALM_BIG");
-            buffer.Add("ACIDBOMB");
-            buffer.Add("TEARGAS");
-            buffer.Add("SMOKE");
-            buffer.Add("SMOKE_BIG");
-            buffer.Add("FLASHBANG");
-            buffer.Add("LIGHTNING");
-            buffer.Add("LASER");
-            buffer.Add("PLASMA");
-            buffer.Add("NOGIB");
-            PresetDataSources[(int)JsonFormTag.DataSourceType.AMMO_EFFECTS] = buffer;
-
-            buffer = new List<string>();
-            buffer.Add("TORSO");
-            buffer.Add("HEAD");
-            buffer.Add("EYES");
-            buffer.Add("MOUTH");
-            buffer.Add("ARMS");
-            buffer.Add("HANDS");
-            buffer.Add("LEGS");
-            buffer.Add("FEET");
-            PresetDataSources[(int)JsonFormTag.DataSourceType.BODY_PARTS] = buffer;
-
-            buffer = new List<string>();
-            buffer.Add("FIT");
-            buffer.Add("VARSIZE");
-            buffer.Add("OVERSIZE");
-            buffer.Add("HOOD");
-            buffer.Add("POCKETS");
-            buffer.Add("WATCH");
-            buffer.Add("ALARMCLOCK");
-            buffer.Add("USE_EAT_VERB");
-            buffer.Add("FANCY");
-            buffer.Add("SUPER_FANCY");
-            buffer.Add("WATER_FRIENDLY");
-            buffer.Add("WATERPROOF");
-            buffer.Add("LIGHT_1");
-            buffer.Add("LIGHT_2");
-            buffer.Add("LIGHT_8");
-            buffer.Add("LIGHT_20"); //TODO: setable light level
-            buffer.Add("SEALS");
-            buffer.Add("RIGID");
-            buffer.Add("WATERTIGHT");
-            buffer.Add("EATEN_HOT");
-            buffer.Add("MODE_AUX");
-            buffer.Add("MODE_BURST");
-            buffer.Add("STR_RELOAD");
-            buffer.Add("STAB");
-            buffer.Add("NO_UNLOAD");
-            buffer.Add("UNARMED_WEAPON");
-            buffer.Add("GRENADE");
-            buffer.Add("RELOAD_AND_SHOOT");
-            buffer.Add("ALWAY_TWOHAND");
-            buffer.Add("RELOAD_ONE");
-            buffer.Add("CHARGE");
-            buffer.Add("FIRE_100");
-            buffer.Add("BACKBLAST");
-            buffer.Add("USE_UPS");
-            buffer.Add("STR8_DRAW");
-            buffer.Add("STR10_DRAW");
-            buffer.Add("STR12_DRAW");
-            PresetDataSources[(int)JsonFormTag.DataSourceType.FLAGS] = buffer;
-
-            buffer = new List<string>();
-            PresetDataSources[(int)JsonFormTag.DataSourceType.VEHICLEPART_FLAGS] = buffer;
-
-            PresetDataSources[(int)JsonFormTag.DataSourceType.TECHNIQUES] = new List<string>();
-
-            buffer = new List<string>();
-            buffer.Add("red");
-            buffer.Add("blue");
-            buffer.Add("green");
-            buffer.Add("light_cyan");
-            buffer.Add("brown");
-            buffer.Add("light_red");
-            buffer.Add("white");
-            buffer.Add("light_blue");
-            buffer.Add("yellow");
-            buffer.Add("magenta");
-            buffer.Add("cyan");
-            buffer.Add("light_gray");
-            buffer.Add("dark_gray");
-            buffer.Add("light_green");
-            buffer.Add("pink");
-            PresetDataSources[(int)JsonFormTag.DataSourceType.COLOR] = buffer;
-
-            buffer = new List<string>();
-            buffer.Add("gasoline");
-            buffer.Add("battery");
-            buffer.Add("plutonium");
-            buffer.Add("plasma");
-            buffer.Add("water");
-            PresetDataSources[(int)JsonFormTag.DataSourceType.FUEL] = buffer;
+            
         }
 
         public static string[] GetDataSource(JsonFormTag.DataSourceType source)
@@ -1088,16 +717,7 @@ namespace CataclysmModder
             {
                 switch (source)
                 {
-                    case JsonFormTag.DataSourceType.TECHNIQUES:
-                        return GetTechniques();
-                    case JsonFormTag.DataSourceType.MATERIALS:
-                        return GetMaterialNames();
-                    case JsonFormTag.DataSourceType.SKILLS:
-                        return GetSkills();
-                    case JsonFormTag.DataSourceType.GUN_SKILLS:
-                        return GetGunSkills();
-                    case JsonFormTag.DataSourceType.CRAFT_CATEGORIES:
-                        return GetCraftCategories();
+                    
                 }
             }
 

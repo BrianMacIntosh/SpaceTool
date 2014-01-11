@@ -10,18 +10,7 @@ namespace CataclysmModder
     {
         public static Form1 Instance { get; private set; }
 
-        public GunmodValues GunModControl;
-        public ComestibleValues ComestibleControl;
-        public GunValues GunControl;
-        public ToolValues ToolControl;
-        public AmmoValues AmmoControl;
-        public ArmorValues ArmorControl;
-        public BookValues BookControl;
-        public ContainValues ContainControl;
-
-        Point itemExtensionLocation;
         Point mainPanelLocation;
-
 
         public Form1()
         {
@@ -32,84 +21,19 @@ namespace CataclysmModder
 
             mainPanelLocation = new Point(150, 20);
 
-            Control itemControl = new GenericItemValues();
-            itemControl.Tag = new DataFormTag();
-            itemControl.Location = mainPanelLocation;
-            itemControl.Visible = false;
-            Controls.Add(itemControl);
-            Storage.FileDefSetControl(Storage.FileType.ITEMS, itemControl);
+            Control shipControl = new ShipValues();
+            shipControl.Tag = new DataFormTag();
+            shipControl.Location = mainPanelLocation;
+            shipControl.Visible = false;
+            Controls.Add(shipControl);
+            Storage.FileDefSetControl(Storage.FileType.SHIPS, shipControl);
 
-            itemExtensionLocation = new Point(150, itemControl.Bottom);
-
-            GunModControl = new GunmodValues();
-            GunModControl.Tag = new ItemExtensionFormTag("GUNMOD");
-            GunModControl.Location = itemExtensionLocation;
-            Controls.Add(GunModControl);
-
-            ComestibleControl = new ComestibleValues();
-            ComestibleControl.Tag = new ItemExtensionFormTag("COMESTIBLE");
-            ComestibleControl.Location = itemExtensionLocation;
-            Controls.Add(ComestibleControl);
-
-            GunControl = new GunValues();
-            GunControl.Tag = new ItemExtensionFormTag("GUN");
-            GunControl.Location = itemExtensionLocation;
-            Controls.Add(GunControl);
-
-            ToolControl = new ToolValues();
-            ToolControl.Tag = new ItemExtensionFormTag("TOOL");
-            ToolControl.Location = itemExtensionLocation;
-            Controls.Add(ToolControl);
-
-            AmmoControl = new AmmoValues();
-            AmmoControl.Tag = new ItemExtensionFormTag("AMMO");
-            AmmoControl.Location = itemExtensionLocation;
-            Controls.Add(AmmoControl);
-
-            ArmorControl = new ArmorValues();
-            ArmorControl.Tag = new ItemExtensionFormTag("ARMOR");
-            ArmorControl.Location = itemExtensionLocation;
-            Controls.Add(ArmorControl);
-
-            BookControl = new BookValues();
-            BookControl.Tag = new ItemExtensionFormTag("BOOK");
-            BookControl.Location = itemExtensionLocation;
-            Controls.Add(BookControl);
-
-            ContainControl = new ContainValues();
-            ContainControl.Tag = new ItemExtensionFormTag("CONTAINER");
-            ContainControl.Location = itemExtensionLocation;
-            Controls.Add(ContainControl);
-
-            HideItemExtensions();
-
-            Control itemGroupControl = new ItemGroupValues();
-            itemGroupControl.Tag = new DataFormTag();
-            itemGroupControl.Location = mainPanelLocation;
-            itemGroupControl.Visible = false;
-            Controls.Add(itemGroupControl);
-            Storage.FileDefSetControl(Storage.FileType.ITEM_GROUPS, itemGroupControl);
-
-            Control recipeControl = new RecipeControl();
-            recipeControl.Tag = new DataFormTag();
-            recipeControl.Location = mainPanelLocation;
-            recipeControl.Visible = false;
-            Controls.Add(recipeControl);
-            Storage.FileDefSetControl(Storage.FileType.RECIPES, recipeControl);
-
-            Control professionControl = new ProfessionValues();
-            professionControl.Tag = new DataFormTag();
-            professionControl.Location = mainPanelLocation;
-            professionControl.Visible = false;
-            Controls.Add(professionControl);
-            Storage.FileDefSetControl(Storage.FileType.PROFESSIONS, professionControl);
-
-            Control vehiclePartControl = new VehiclePartValues();
-            vehiclePartControl.Tag = new DataFormTag();
-            vehiclePartControl.Location = mainPanelLocation;
-            vehiclePartControl.Visible = false;
-            Controls.Add(vehiclePartControl);
-            Storage.FileDefSetControl(Storage.FileType.VEHICLE_PARTS, vehiclePartControl);
+            Control weaponControl = new WeaponValues();
+            weaponControl.Tag = new DataFormTag();
+            weaponControl.Location = mainPanelLocation;
+            weaponControl.Visible = false;
+            Controls.Add(weaponControl);
+            Storage.FileDefSetControl(Storage.FileType.WEAPONS, weaponControl);
 
             //Load previous workspace
             if (File.Exists(".conf"))
@@ -138,7 +62,7 @@ namespace CataclysmModder
 
         public void loadFiles(string path)
         {
-            Text = "Jabberwocks! - " + path;
+            Text = Text.Split('-')[0] + "- " + path;
 
             //Remember path
             StreamWriter writer = new StreamWriter(new FileStream(".conf", FileMode.Create));

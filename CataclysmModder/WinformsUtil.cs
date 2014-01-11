@@ -47,29 +47,15 @@ namespace CataclysmModder
         public enum DataSourceType
         {
             //Preset values (these can be modified if files have new ones)
-            ADDICTION_TYPES,
-            AMMO_EFFECTS,
-            BODY_PARTS,
-            TECHNIQUES, //TODO: actually loaded in dev version
-            FLAGS,
-            VEHICLEPART_FLAGS,
-            FUEL,
             PRESET_MOD_COUNT,
 
             //Non
-            COLOR,
             PRESET_COUNT,
 
             //Loaded values (loaded from the game data)
-            MATERIALS,
-            SKILLS,
-            GUN_SKILLS,
-            CRAFT_CATEGORIES,
 
             //Other values
-            NONE,
-            ITEMS,
-            BOOKS
+            NONE
         }
 
         /// <summary>
@@ -167,6 +153,42 @@ namespace CataclysmModder
                 box.SetItemChecked(c, false);
         }
 
+        /// <summary>
+        /// Parses multi-level keys like "position.x".
+        /// On success, returns final dict and sets key properly.
+        /// On failure, returns null and key are undefined.
+        /// </summary>
+        private static Dictionary<string, object> NavigateKeyPath(Dictionary<string, object> itemValues, ref string key)
+        {
+            string[] split = key.Split('.');
+            string sofar = "";
+            for (int c = 0; c < split.Length - 1; c++)
+            {
+                string s = split[c];
+                sofar += s;
+                if (itemValues.ContainsKey(s))
+                {
+                    if (itemValues[s] is Dictionary<string, object>)
+                    {
+                        itemValues = (Dictionary<string, object>)itemValues[s];
+                    }
+                    else
+                    {
+                        //TODO: error
+                    }
+                }
+                else
+                {
+                    Dictionary<string, object> ndict = new Dictionary<string, object>();
+                    itemValues.Add(s, ndict);
+                    itemValues = ndict;
+                }
+                sofar += '.';
+            }
+            key = split[split.Length - 1];
+            return itemValues;
+        }
+
         public static void SetString(Dictionary<string, object> itemValues, string key, Control field,
             string id, bool mandatory)
         {
@@ -190,31 +212,42 @@ namespace CataclysmModder
             }
         }
 
-        public static void SetInt(Dictionary<string, object> itemValues, string key, NumericUpDown field,
+        public static void SetNumber(Dictionary<string, object> itemValues, string key, NumericUpDown field,
             string id, bool mandatory)
         {
             if (itemValues.ContainsKey(key))
             {
                 try
                 {
-                    int val = (int)itemValues[key];
+                    decimal? val = null;
+                    object ik = itemValues[key];
+                    if (ik is int)
+                        val = (int)ik;
+                    else if (ik is long)
+                        val = (long)ik;
+                    else if (ik is float)
+                        val = (decimal)((float)ik);
+                    else if (ik is double)
+                        val = (decimal)((double)ik);
+                    if (!val.HasValue)
+                        val = (decimal)ik; //Doing this outside of ladder to force InvalidCastException
                     if (val > field.Maximum)
                     {
                         IssueTracker.PostIssue("Value '" + val + "' for key '" + key + "' exceeds the maximum allowed.",
                             IssueTracker.IssueLevel.WARNING);
-                        val = (int)field.Maximum;
+                        val = field.Maximum;
                     }
                     else if (val < field.Minimum)
                     {
                         IssueTracker.PostIssue("Value '" + val + "' for key '" + key + "' is below the minimum allowed.",
                             IssueTracker.IssueLevel.WARNING);
-                        val = (int)field.Minimum;
+                        val = field.Minimum;
                     }
-                    field.Value = val;
+                    field.Value = val.Value;
                 }
                 catch (InvalidCastException)
                 {
-                    MessageBox.Show("Expected 'int' for key '" + key + "' but got '" + itemValues[key].GetType().ToString() + "'",
+                    MessageBox.Show("Expected a number for key '" + key + "' but got '" + itemValues[key].GetType().ToString() + "'",
                         "Data Error", MessageBoxButtons.OK);
                 }
             }
@@ -488,22 +521,6 @@ namespace CataclysmModder
                     //Handle data source hooks
                     switch (tag.dataSource)
                     {
-                        case JsonFormTag.DataSourceType.ITEMS:
-                            if (!(c is TextBox))
-                                throw new InvalidCastException("Item Data Source is only allowed on TextBox controls.");
-                            TextBox tb1 = (TextBox)c;
-                            tb1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                            tb1.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                            tb1.AutoCompleteCustomSource = Storage.AutocompleteItemSource;
-                            break;
-                        case JsonFormTag.DataSourceType.BOOKS:
-                            if (!(c is TextBox))
-                                throw new InvalidCastException("Book Data Source is only allowed on TextBox controls.");
-                            TextBox tb2 = (TextBox)c;
-                            tb2.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                            tb2.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                            tb2.AutoCompleteCustomSource = Storage.AutocompleteBookSource;
-                            break;
                         case JsonFormTag.DataSourceType.NONE:
 
                             break;
@@ -673,7 +690,15 @@ namespace CataclysmModder
                     if (tag.def == null)
                     {
                         if (c is NumericUpDown)
-                            tag.def = 0;
+                        {
+                            NumericUpDown cn = (NumericUpDown)c;
+                            if (cn.Minimum > 0)
+                                tag.def = cn.Minimum;
+                            else if (cn.Maximum < 0)
+                                tag.def = cn.Maximum;
+                            else
+                                tag.def = (decimal)0;
+                        }
                         else if (c is CheckedListBox)
                             tag.def = new string[0];
                         else if (c is CheckBox)
@@ -762,16 +787,18 @@ namespace CataclysmModder
                     JsonFormTag tag = (JsonFormTag)c.Tag;
                     if (!string.IsNullOrEmpty(tag.key))
                     {
+                        string key = tag.key;
+                        Dictionary<string, object> final = NavigateKeyPath(itemValues, ref key);
                         if (c is NumericUpDown)
-                            SetInt(itemValues, tag.key, (NumericUpDown)c, id, tag.mandatory);
+                            SetNumber(final, key, (NumericUpDown)c, id, tag.mandatory);
                         else if (c is CheckedListBox)
-                            SetChecks(itemValues, tag.key, (CheckedListBox)c, id, tag.mandatory);
+                            SetChecks(final, key, (CheckedListBox)c, id, tag.mandatory);
                         else if (c is CheckBox)
-                            SetCheckBox(itemValues, tag.key, (CheckBox)c, id, tag.mandatory);
+                            SetCheckBox(final, key, (CheckBox)c, id, tag.mandatory);
                         else if (c is ListBox && tag.listBoxData != null)
-                            SetList(itemValues, tag.key, (ListBox)c, tag.listBoxData.backingList, id, tag.mandatory);
+                            SetList(final, key, (ListBox)c, tag.listBoxData.backingList, id, tag.mandatory);
                         else
-                            SetString(itemValues, tag.key, c, id, tag.mandatory);
+                            SetString(final, key, c, id, tag.mandatory);
                     }
                 }
                 if (c.Controls.Count > 0)
@@ -805,7 +832,7 @@ namespace CataclysmModder
                     if (c is NumericUpDown)
                     {
                         if (tag.def != null)
-                            ((NumericUpDown)c).Value = (int)tag.def;
+                            ((NumericUpDown)c).Value = (decimal)tag.def;
                         else
                             ((NumericUpDown)c).Value = 0;
                     }

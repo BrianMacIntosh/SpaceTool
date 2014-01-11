@@ -53,6 +53,8 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testAllItemsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.helpTextStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.label2 = new System.Windows.Forms.Label();
@@ -64,8 +66,6 @@
             this.duplicateButton = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.searchBox = new System.Windows.Forms.TextBox();
-            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.testAllItemsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -265,9 +265,24 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // debugToolStripMenuItem
+            // 
+            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.testAllItemsToolStripMenuItem});
+            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.debugToolStripMenuItem.Text = "Debug";
+            // 
+            // testAllItemsToolStripMenuItem
+            // 
+            this.testAllItemsToolStripMenuItem.Name = "testAllItemsToolStripMenuItem";
+            this.testAllItemsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.testAllItemsToolStripMenuItem.Text = "Test All Items";
+            this.testAllItemsToolStripMenuItem.Click += new System.EventHandler(this.testAllItemsToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -299,9 +314,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(7, 23);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(26, 13);
+            this.label1.Size = new System.Drawing.Size(39, 13);
             this.label1.TabIndex = 6;
-            this.label1.Text = "File:";
+            this.label1.Text = "Folder:";
             // 
             // filesComboBox
             // 
@@ -369,21 +384,6 @@
             this.searchBox.TextChanged += new System.EventHandler(this.searchBox_TextChanged);
             this.searchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.searchBox_KeyPress);
             // 
-            // debugToolStripMenuItem
-            // 
-            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.testAllItemsToolStripMenuItem});
-            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
-            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
-            this.debugToolStripMenuItem.Text = "Debug";
-            // 
-            // testAllItemsToolStripMenuItem
-            // 
-            this.testAllItemsToolStripMenuItem.Name = "testAllItemsToolStripMenuItem";
-            this.testAllItemsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.testAllItemsToolStripMenuItem.Text = "Test All Items";
-            this.testAllItemsToolStripMenuItem.Click += new System.EventHandler(this.testAllItemsToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -403,7 +403,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "Jabberwocks!";
+            this.Text = "SpaceTool";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

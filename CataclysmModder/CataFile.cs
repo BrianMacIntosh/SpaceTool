@@ -16,6 +16,7 @@ namespace CataclysmModder
 
         /// <summary>
         /// The key to use for displaying items from this file in the listbox.
+        /// If null, uses filename.
         /// </summary>
         public string displayMember = null;
         public string displaySuffix = "";
@@ -25,6 +26,11 @@ namespace CataclysmModder
         /// </summary>
         public Control control;
 
+
+        public CataFile()
+        {
+            this.displayMember = null;
+        }
 
         public CataFile(string displayMember)
         {
