@@ -15,7 +15,7 @@ namespace CataclysmModder
 
             public SchemaKey(string key, bool mandatory)
             {
-                this.key = key.ToLower();
+                this.key = key;
                 this.mandatory = mandatory;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace CataclysmModder
 {
@@ -76,6 +77,12 @@ namespace CataclysmModder
         public bool mandatory = true;
 
         /// <summary>
+        /// For non-mandatory controls, the value of this box determines whether the field even exists.
+        /// </summary>
+        public CheckBox hasValue;
+        public Control hasValueOwner;
+
+        /// <summary>
         /// If set, this control has a list of values loaded from the specified source.
         /// </summary>
         public DataSourceType dataSource = DataSourceType.NONE;
@@ -85,6 +92,9 @@ namespace CataclysmModder
         /// </summary>
         public ListBoxTagData listBoxData = null;
 
+        /// <summary>
+        /// The list box controlling this field, if any. Don't set manually.
+        /// </summary>
         public ListBox ownerListBox;
 
 
@@ -120,8 +130,8 @@ namespace CataclysmModder
         public Button newButton;
         public Button deleteButton;
 
-        public Control keyControl;
-        public NumericUpDown valueControl;
+        //public Control keyControl;
+        //public NumericUpDown valueControl;
 
         public object defaultValue;
     }
@@ -146,6 +156,14 @@ namespace CataclysmModder
 
         private static List<Control> dataSourcedControls = new List<Control>();
 
+        private static Control rootControl;
+        private static object currentItem;
+
+
+        public static void SetRootControl(Control control)
+        {
+            rootControl = control;
+        }
 
         public static void ResetCheckedListBox(CheckedListBox box)
         {
@@ -158,7 +176,7 @@ namespace CataclysmModder
         /// On success, returns final dict and sets key properly.
         /// On failure, returns null and key are undefined.
         /// </summary>
-        private static Dictionary<string, object> NavigateKeyPath(Dictionary<string, object> itemValues, ref string key)
+        public static Dictionary<string, object> NavigateKeyPath(Dictionary<string, object> itemValues, ref string key)
         {
             string[] split = key.Split('.');
             string sofar = "";
@@ -166,7 +184,22 @@ namespace CataclysmModder
             {
                 string s = split[c];
                 sofar += s;
-                if (itemValues.ContainsKey(s))
+                if (s.EndsWith("[]"))
+                {
+                    Control listbox = GetControlForKey(rootControl, sofar.Substring(0, sofar.Length - "[]".Length));
+                    if (listbox is ListBox)
+                    {
+                        GroupedData selected = (GroupedData)((ListBox)listbox).SelectedItem;
+                        if (selected != null)
+                            itemValues = (Dictionary<string, object>)selected.data;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Tried to index a control that wasn't a ListBox.");
+                        return null;
+                    }
+                }
+                else if (itemValues.ContainsKey(s))
                 {
                     if (itemValues[s] is Dictionary<string, object>)
                     {
@@ -187,6 +220,29 @@ namespace CataclysmModder
             }
             key = split[split.Length - 1];
             return itemValues;
+        }
+
+        /// <summary>
+        /// Searches for an active control tagged for the specified key.
+        /// Can include fields ("position.x").
+        /// </summary>
+        private static Control GetControlForKey(Control root, string key)
+        {
+            foreach (Control c in root.Controls)
+            {
+                if (c.Tag is JsonFormTag)
+                {
+                    if (c.Visible && ((JsonFormTag)c.Tag).key != null && ((JsonFormTag)c.Tag).key.Equals(key))
+                        return c;
+                }
+                if (c.Controls.Count > 0)
+                {
+                    Control sub = GetControlForKey(c, key);
+                    if (sub != null)
+                        return sub;
+                }
+            }
+            return null;
         }
 
         public static void SetString(Dictionary<string, object> itemValues, string key, Control field,
@@ -369,7 +425,7 @@ namespace CataclysmModder
                 }
 
                 if (box.Items.Count > 0)
-                    box.SelectedIndex = 0; //TODO: THIS MIGHT NOT CALLBACK
+                    box.SelectedItem = null;
             }
             else if (mandatory)
             {
@@ -493,10 +549,7 @@ namespace CataclysmModder
                         listBoxData.deleteButton.Tag = new JsonFormTag(null, null);
                         ((JsonFormTag)listBoxData.deleteButton.Tag).ownerListBox = (ListBox)c;
 
-                        ((JsonFormTag)listBoxData.keyControl.Tag).ownerListBox = (ListBox)c;
-
-                        if (listBoxData.valueControl != null)
-                            ((JsonFormTag)listBoxData.valueControl.Tag).ownerListBox = (ListBox)c;
+                        //TODO: set ownerListBox on value fields?
                     }
                 }
                 if (c.Controls.Count > 0)
@@ -536,42 +589,68 @@ namespace CataclysmModder
                         c1.AutoCompleteSource = AutoCompleteSource.ListItems;
                     }
 
-                    if (c is NumericUpDown)
-                        ((NumericUpDown)c).ValueChanged += NumericValueChanged;
-                    else if (c is CheckedListBox)
-                        ((CheckedListBox)c).ItemCheck += ChecksValueChanged;
-                    else if (c is CheckBox)
-                        ((CheckBox)c).CheckedChanged += CheckValueChanged;
-                    else if (c is ListBox && tag.listBoxData != null)
+                    if (tag.key != null)
                     {
-                        //Set up data
-                        ((ListBox)c).DataSource = tag.listBoxData.backingList;
-                        ((ListBox)c).DisplayMember = "Display";
-                        listTags.Add(tag.listBoxData.backingList, tag);
+                        if (c is NumericUpDown)
+                            ((NumericUpDown)c).ValueChanged += NumericValueChanged;
+                        else if (c is CheckedListBox)
+                            ((CheckedListBox)c).ItemCheck += ChecksValueChanged;
+                        else if (c is CheckBox)
+                            ((CheckBox)c).CheckedChanged += CheckValueChanged;
+                        else if (c is ListBox && tag.listBoxData != null)
+                        {
+                            //Set up data
+                            ((ListBox)c).DataSource = tag.listBoxData.backingList;
+                            ((ListBox)c).DisplayMember = "Display";
+                            listTags.Add(tag.listBoxData.backingList, tag);
 
-                        tag.listBoxData.backingList.ListChanged += ListChanged;
+                            tag.listBoxData.backingList.ListChanged += ListChanged;
 
-                        //Attach other hooks
-                        ((ListBox)c).SelectedIndexChanged += ListSelectedIndexChanged;
-                        tag.listBoxData.newButton.Click += ListBoxNewClicked;
-                        tag.listBoxData.deleteButton.Click += ListBoxDeleteClicked;
-                        tag.listBoxData.keyControl.TextChanged += ListBoxKeyChanged;
-                        if (tag.listBoxData.valueControl != null)
-                            tag.listBoxData.valueControl.ValueChanged += ListBoxValueChanged;
+                            //Attach other hooks
+                            ((ListBox)c).SelectedIndexChanged += ListSelectedIndexChanged;
+                            tag.listBoxData.newButton.Click += ListBoxNewClicked;
+                            tag.listBoxData.deleteButton.Click += ListBoxDeleteClicked;
 
-                        //Disable
-                        tag.listBoxData.deleteButton.Enabled = false;
-                        tag.listBoxData.keyControl.Enabled = false;
-                        if (tag.listBoxData.valueControl != null)
-                            tag.listBoxData.valueControl.Enabled = false;
+                            //Disable
+                            tag.listBoxData.deleteButton.Enabled = false;
+                            //TODO: disable listbox-dependent fields
+                        }
+                        else
+                            c.TextChanged += TextValueChanged;
                     }
-                    else
-                        c.TextChanged += TextValueChanged;
+
+                    if (tag.hasValue != null)
+                        tag.hasValue.CheckStateChanged += HasValueChanged;
                 }
                 if (c.Controls.Count > 0)
                 {
                     ControlsAttachHooks(c);
                 }
+            }
+        }
+
+        static void HasValueChanged(object sender, EventArgs e)
+        {
+            JsonFormTag tag = ((CheckBox)sender).Tag as JsonFormTag;
+            if (tag != null && tag.hasValueOwner != null)
+            {                
+                tag.hasValueOwner.Enabled = ((CheckBox)sender).Checked;
+                if (!tag.hasValueOwner.Enabled)
+                {
+                    ControlsResetValues(tag.hasValueOwner);
+
+                    //Delete key from dict
+                    if (tag.hasValueOwner.Tag is JsonFormTag)
+                    {
+                        JsonFormTag otag = (JsonFormTag)tag.hasValueOwner.Tag;
+                        if (!string.IsNullOrEmpty(tag.key))
+                            Storage.ItemApplyValue(tag.key, null, tag.mandatory);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("HasValueChanged was called but something was null.");
             }
         }
 
@@ -584,29 +663,20 @@ namespace CataclysmModder
             ListBox listBox = (ListBox)sender;
             ListBoxTagData tagData = ((JsonFormTag)listBox.Tag).listBoxData;
             WinformsUtil.Resetting++;
-            if (listBox.SelectedItem != null)
+            if (listBox != null)
             {
-                tagData.keyControl.Enabled = true;
-                tagData.keyControl.Text = ((GroupedData)listBox.SelectedItem).Id;
-                if (tagData.valueControl != null)
+                if (listBox.SelectedItem != null)
                 {
-                    tagData.valueControl.Enabled = true;
-                    tagData.valueControl.Value = ((GroupedData)listBox.SelectedItem).Value;
+                    //TODO: enable editing controls
+                    ControlSetValues(rootControl, currentItem, listBox);
+                    tagData.deleteButton.Enabled = true;
                 }
-
-                tagData.deleteButton.Enabled = true;
-            }
-            else if (!changingListValues)
-            {
-                tagData.keyControl.Enabled = false;
-                tagData.keyControl.Text = "";
-                if (tagData.valueControl != null)
+                else if (!changingListValues)
                 {
-                    tagData.valueControl.Enabled = false;
-                    tagData.valueControl.Value = 0;
+                    //TODO: disable editing controls
+                    ControlResetValues(rootControl, listBox);
+                    tagData.deleteButton.Enabled = false;
                 }
-
-                tagData.deleteButton.Enabled = false;
             }
             WinformsUtil.Resetting--;
         }
@@ -646,32 +716,6 @@ namespace CataclysmModder
             ListBoxTagData listBoxData = ((JsonFormTag)owner.Tag).listBoxData;
             if (owner.SelectedItem != null)
                 listBoxData.backingList.Remove((GroupedData)owner.SelectedItem);
-        }
-
-        static void ListBoxKeyChanged(object sender, EventArgs e)
-        {
-            if (WinformsUtil.Resetting > 0) return;
-
-            ListBox owner = ((JsonFormTag)((Control)sender).Tag).ownerListBox;
-
-            if (owner.SelectedItem == null) return;
-
-            changingListValues = true;
-            ((GroupedData)owner.SelectedItem).Id = ((Control)sender).Text;
-            changingListValues = false;
-        }
-
-        static void ListBoxValueChanged(object sender, EventArgs e)
-        {
-            if (WinformsUtil.Resetting > 0) return;
-
-            ListBox owner = ((JsonFormTag)((Control)sender).Tag).ownerListBox;
-
-            if (owner.SelectedItem == null) return;
-
-            changingListValues = true;
-            ((GroupedData)owner.SelectedItem).Value = (int)((NumericUpDown)sender).Value;
-            changingListValues = false;
         }
 
         #endregion
@@ -766,12 +810,16 @@ namespace CataclysmModder
             if (OnLoadItem != null)
                 OnLoadItem(item);
 
+            currentItem = item;
+
             Resetting--;
         }
 
-        private static void ControlSetValues(Control control, object item)
+        private static void ControlSetValues(Control control, object item, ListBox listbox = null)
         {
-            ControlsResetValues(control);
+            Resetting++;
+
+            ControlResetValues(control, listbox);
 
             Dictionary<string, object> itemValues = (Dictionary<string, object>)item;
 
@@ -785,11 +833,17 @@ namespace CataclysmModder
                 if (c.Tag is JsonFormTag)
                 {
                     JsonFormTag tag = (JsonFormTag)c.Tag;
-                    if (!string.IsNullOrEmpty(tag.key))
+                    if (!string.IsNullOrEmpty(tag.key) && (listbox == null || listbox == tag.ownerListBox))
                     {
                         string key = tag.key;
                         Dictionary<string, object> final = NavigateKeyPath(itemValues, ref key);
-                        if (c is NumericUpDown)
+                        if (final == null)
+                        {
+                            //Disable and set default
+                            //c.Enabled = false;
+                            ControlResetValues(c);
+                        }
+                        else if (c is NumericUpDown)
                             SetNumber(final, key, (NumericUpDown)c, id, tag.mandatory);
                         else if (c is CheckedListBox)
                             SetChecks(final, key, (CheckedListBox)c, id, tag.mandatory);
@@ -799,13 +853,20 @@ namespace CataclysmModder
                             SetList(final, key, (ListBox)c, tag.listBoxData.backingList, id, tag.mandatory);
                         else
                             SetString(final, key, c, id, tag.mandatory);
+
+                        if (tag.hasValue != null)
+                        {
+                            tag.hasValue.Checked = final.ContainsKey(key);
+                            c.Enabled = tag.hasValue.Checked;
+                        }
                     }
                 }
                 if (c.Controls.Count > 0)
                 {
-                    ControlSetValues(c, item);
+                    ControlSetValues(c, item, listbox);
                 }
             }
+            Resetting--;
         }
 
         /// <summary>
@@ -822,45 +883,50 @@ namespace CataclysmModder
             Resetting--;
         }
 
-        private static void ControlResetValues(Control control)
+        private static void ControlResetValues(Control control, ListBox listbox = null)
         {
+            Resetting++;
             foreach (Control c in control.Controls)
             {
                 if (c.Tag is JsonFormTag)
                 {
                     JsonFormTag tag = (JsonFormTag)c.Tag;
-                    if (c is NumericUpDown)
+                    if (listbox == null || listbox == tag.ownerListBox)
                     {
-                        if (tag.def != null)
-                            ((NumericUpDown)c).Value = (decimal)tag.def;
-                        else
-                            ((NumericUpDown)c).Value = 0;
-                    }
-                    else if (c is CheckedListBox)
-                    {
-                        ResetCheckedListBox((CheckedListBox)c);
-                    }
-                    else if (c is CheckBox)
-                    {
-                        ((CheckBox)c).Checked = (bool)tag.def;
-                    }
-                    else if (tag.listBoxData != null)
-                    {
-                        tag.listBoxData.backingList.Clear();
-                    }
-                    else if (!(c is Button))
-                    {
-                        if (tag.def != null)
-                            c.Text = (string)tag.def;
-                        else
-                            c.Text = "";
+                        if (c is NumericUpDown)
+                        {
+                            if (tag.def != null)
+                                ((NumericUpDown)c).Value = (decimal)tag.def;
+                            else
+                                ((NumericUpDown)c).Value = 0;
+                        }
+                        else if (c is CheckedListBox)
+                        {
+                            ResetCheckedListBox((CheckedListBox)c);
+                        }
+                        else if (c is CheckBox)
+                        {
+                            ((CheckBox)c).Checked = (bool)tag.def;
+                        }
+                        else if (tag.listBoxData != null)
+                        {
+                            tag.listBoxData.backingList.Clear();
+                        }
+                        else if (!(c is Button))
+                        {
+                            if (tag.def != null)
+                                c.Text = (string)tag.def;
+                            else
+                                c.Text = "";
+                        }
                     }
                 }
                 if (c.Controls.Count > 0)
                 {
-                    ControlResetValues(c);
+                    ControlResetValues(c, listbox);
                 }
             }
+            Resetting--;
         }
 
         /// <summary>

@@ -1,0 +1,13 @@
+﻿id
+name
+descShort
+desc
+textureFile
+textureSize
+maskFile
+damageFile
+overlayFile
+coreOffset
+coreRadius
+hardpoints
+stat

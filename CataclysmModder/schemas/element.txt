@@ -1,0 +1,11 @@
+﻿id
+textureFile
+textureSize
+<overlayFile>
+dynamic
+collider
+<captureCollider>
+<neutralizeTime>
+<captureTime>
+<captureIsOneWay>
+stat

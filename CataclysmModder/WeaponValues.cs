@@ -12,6 +12,8 @@ namespace CataclysmModder
 {
     public partial class WeaponValues : UserControl
     {
+        private BindingList<GroupedData> firesData = new BindingList<GroupedData>();
+
         public WeaponValues()
         {
             InitializeComponent();
@@ -49,8 +51,69 @@ namespace CataclysmModder
                 "stat.overrideAngle",
                 "Locks the gun to the specified angle in radians.",
                 false);
+            ((JsonFormTag)overrideAngleNumeric.Tag).hasValue = overrideAngleCheck;
+            overrideAngleCheck.Tag = new JsonFormTag(
+                null,
+                "Uncheck this box to set no value for the override angle.");
+            ((JsonFormTag)overrideAngleCheck.Tag).hasValueOwner = overrideAngleNumeric;
+
+            firesListBox.Tag = new JsonFormTag(
+                "stat.fires",
+                "The list of projectiles this weapon fires.");
+            ListBoxTagData listBoxData = new ListBoxTagData();
+            listBoxData.backingList = firesData;
+            listBoxData.defaultValue = new Dictionary<string, object>();
+            listBoxData.deleteButton = deleteFiresButton;
+            listBoxData.newButton = newFiresButton;
+            ((JsonFormTag)firesListBox.Tag).listBoxData = listBoxData;
+
+            projectileTemplateTextBox.Tag = new JsonFormTag(
+                "stat.fires[].template",
+                "The string ID of the projectile this source fires.",
+                false);
+            ((JsonFormTag)projectileTemplateTextBox.Tag).ownerListBox = firesListBox;
+            fireRateNumeric.Tag = new JsonFormTag(
+                "stat.fires[].rate",
+                "The fire rate of this source in shots per second.");
+            ((JsonFormTag)fireRateNumeric.Tag).ownerListBox = firesListBox;
+            atAngleNumeric.Tag = new JsonFormTag(
+                "stat.fires[].atAngle",
+                "An angle value in radians to add to the player's aim angle.",
+                false);
+            ((JsonFormTag)atAngleNumeric.Tag).ownerListBox = firesListBox;
+            firePointXNumeric.Tag = new JsonFormTag(
+                "stat.fires[].firePoint.x",
+                "The X offset from the weapon where the projectile spawns.",
+                false);
+            ((JsonFormTag)firePointXNumeric.Tag).ownerListBox = firesListBox;
+            firePointYNumeric.Tag = new JsonFormTag(
+                "stat.fires[].firePoint.y",
+                "The Y offset from the weapon where the projectile spawns.",
+                false);
+            ((JsonFormTag)firePointYNumeric.Tag).ownerListBox = firesListBox;
+            spreadMeanNumeric.Tag = new JsonFormTag(
+                "stat.fires[].spread.mean",
+                "The mean fire spread, in radians.",
+                false);
+            ((JsonFormTag)spreadMeanNumeric.Tag).ownerListBox = firesListBox;
+            stdDevNumeric.Tag = new JsonFormTag(
+                "stat.fires[].spread.stdDev",
+                "The standard deviation of the spread, in radians.",
+                false);
+            ((JsonFormTag)stdDevNumeric.Tag).ownerListBox = firesListBox;
+            soundFileTextBox.Tag = new JsonFormTag(
+                "stat.fires[].soundFile",
+                "Relative path to a sound to play when the weapon is fired.",
+                false);
+            ((JsonFormTag)soundFileTextBox.Tag).ownerListBox = firesListBox;
+            kickNumeric.Tag = new JsonFormTag(
+                "stat.fires[].kick",
+                "Pixels of kick to apply to the screen of the weapon's user when fired.",
+                false);
+            ((JsonFormTag)kickNumeric.Tag).ownerListBox = firesListBox;
 
             textureFileTextBox.TextChanged += TextureFileChanged;
+            soundFileTextBox.TextChanged += SoundFileChanged;
 
             WinformsUtil.ControlsAttachHooks(this);
             WinformsUtil.TagsSetDefaults(this);
@@ -68,7 +131,7 @@ namespace CataclysmModder
             }
 
             //Verify file exists
-            using (Bitmap b = VerifyImage(Common.GetPathForMedia(text), textureFileWarn))
+            using (Bitmap b = Common.VerifyImage(Common.GetPathForMedia(text), textureFileWarn, toolTip1))
             {
                 if (b == null)
                     return;
@@ -79,25 +142,28 @@ namespace CataclysmModder
             }
         }
 
-        private Bitmap VerifyImage(string path, PictureBox warn)
+        void SoundFileChanged(object sender, EventArgs e)
         {
-            Bitmap b;
-            if (File.Exists(path))
+            string text = ((Control)sender).Text;
+
+            if (string.IsNullOrEmpty(text))
             {
-                b = new Bitmap(path);
+                soundFilePictureBox.Image = null;
+                toolTip1.SetToolTip(soundFilePictureBox, null);
+                return;
+            }
+
+            //Verify file exists
+            if (!File.Exists(Common.GetPathForMedia(text)))
+            {
+                soundFilePictureBox.Image = Common.CriticalIcon;
+                toolTip1.SetToolTip(soundFilePictureBox, "File not found.");
             }
             else
             {
-                warn.Image = Common.CriticalIcon;
-                toolTip1.SetToolTip(warn, "File not found.");
-                return null;
+                soundFilePictureBox.Image = Common.OkIcon;
+                toolTip1.SetToolTip(soundFilePictureBox, "File accepted.");
             }
-
-            //Display good icon
-            warn.Image = Common.OkIcon;
-            toolTip1.SetToolTip(warn, "File accepted.");
-
-            return b;
         }
     }
 }

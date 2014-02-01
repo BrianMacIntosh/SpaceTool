@@ -27,8 +27,10 @@ namespace CataclysmModder
                         return (string)dict["name"];
                     else if (dict.ContainsKey("type"))
                         return (string)dict["type"];
+                    else if (dict.ContainsKey("id"))
+                        return (string)dict["id"];
                     else
-                        throw new NotImplementedException();
+                        return "ERROR";
                 }
                 else
                     return data.ToString();
@@ -99,13 +101,9 @@ namespace CataclysmModder
         {
             get
             {
-                if (data is object[] || data is Dictionary<string, object>)
-                    return Id + " (" + Value + ")";
-                else
-                    return Id;
+                return Id;
             }
         }
-
 
         public GroupedData(object data)
         {

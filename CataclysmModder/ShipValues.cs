@@ -1,13 +1,15 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using System.IO;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace CataclysmModder
 {
     public partial class ShipValues : UserControl
     {
+        private BindingList<GroupedData> hardpointData = new BindingList<GroupedData>();
+
         public ShipValues()
         {
             InitializeComponent();
@@ -63,6 +65,34 @@ namespace CataclysmModder
                 "stat.movementStats.minDecel",
                 "The minimum decceleration of this ship when no input is given (pixels per second per second).");
 
+            hardpointsListBox.Tag = new JsonFormTag(
+                "hardpoints",
+                "A list of mount points where weapons or equipment can be attached.");
+            ListBoxTagData listBoxData = new ListBoxTagData();
+            listBoxData.backingList = hardpointData;
+            listBoxData.defaultValue = new Dictionary<string, object>();
+            listBoxData.deleteButton = deleteHardpointButton;
+            listBoxData.newButton = newHardpointButton;
+            ((JsonFormTag)hardpointsListBox.Tag).listBoxData = listBoxData;
+
+            wtemplateTextBox.Tag = new JsonFormTag(
+                "hardpoints[].template",
+                "Optionally, the identifier of a weapon that must be in this slot.",
+                false);
+            ((JsonFormTag)wtemplateTextBox.Tag).ownerListBox = hardpointsListBox;
+            wclassNumeric.Tag = new JsonFormTag(
+                "hardpoints[].wclass",
+                "The maximum rating for weapons that can be attached to this point.");
+            ((JsonFormTag)wclassNumeric.Tag).ownerListBox = hardpointsListBox;
+            woffsetXNumeric.Tag = new JsonFormTag(
+                "hardpoints[].offset.x",
+                "The x offset of this point from the top-left corner of the ship graphic.");
+            ((JsonFormTag)woffsetXNumeric.Tag).ownerListBox = hardpointsListBox;
+            woffsetYNumeric.Tag = new JsonFormTag(
+                "hardpoints[].offset.y",
+                "The y offset of this point from the top-left corner of the ship graphic.");
+            ((JsonFormTag)woffsetYNumeric.Tag).ownerListBox = hardpointsListBox;
+
             textureFileTextBox.TextChanged += TextureFileChanged;
             maskFileTextBox.TextChanged += MaskFileChanged;
             damageFileTextBox.TextChanged += DamageFileChanged;
@@ -83,7 +113,7 @@ namespace CataclysmModder
             }
 
             //Verify file exists
-            using (Bitmap b = VerifyImage(Common.GetPathForMedia(text), textureFileWarn))
+            using (Bitmap b = Common.VerifyImage(Common.GetPathForMedia(text), textureFileWarn, toolTip1))
             {
                 if (b == null)
                     return;
@@ -109,15 +139,16 @@ namespace CataclysmModder
                 return;
             }
 
-            using (Bitmap b = VerifyImage(Common.GetPathForMedia(text), maskFileWarn))
+            using (Bitmap b = Common.VerifyImage(Common.GetPathForMedia(text), maskFileWarn, toolTip1))
             {
                 if (b == null)
                     return;
 
-                VerifyAspect(
+                Common.VerifyAspect(
                     Common.GetPathForMedia(((Control)sender).Text),
                     (float)textureWNumeric.Value, (float)textureHNumeric.Value,
-                    maskFileWarn);
+                    maskFileWarn,
+                    toolTip1);
             }
         }
 
@@ -132,55 +163,16 @@ namespace CataclysmModder
                 return;
             }
 
-            using (Bitmap b = VerifyImage(Common.GetPathForMedia(text), damageFileWarn))
+            using (Bitmap b = Common.VerifyImage(Common.GetPathForMedia(text), damageFileWarn, toolTip1))
             {
                 if (b == null)
                     return;
 
-                VerifyAspect(
+                Common.VerifyAspect(
                     Common.GetPathForMedia(((Control)sender).Text),
                     (float)textureWNumeric.Value, (float)textureHNumeric.Value,
-                    damageFileWarn);
-            }
-        }
-
-        private Bitmap VerifyImage(string path, PictureBox warn)
-        {
-            Bitmap b;
-            if (File.Exists(path))
-            {
-                b = new Bitmap(path);
-            }
-            else
-            {
-                warn.Image = Common.CriticalIcon;
-                toolTip1.SetToolTip(warn, "File not found.");
-                return null;
-            }
-
-            //Display good icon
-            warn.Image = Common.OkIcon;
-            toolTip1.SetToolTip(warn, "File accepted.");
-
-            return b;
-        }
-
-        private void VerifyAspect(string path, float ax, float ay, PictureBox warn)
-        {
-            if (!File.Exists(path))
-                return;
-            using (Bitmap b = new Bitmap(path))
-            {
-                if ((ax / ay) != (b.Width / (float)b.Height))
-                {
-                    warn.Image = Common.SeriousIcon;
-                    toolTip1.SetToolTip(warn, "Aspect ratios do not match.");
-                }
-                else if (ax != b.Width || ay != b.Height)
-                {
-                    warn.Image = Common.WarningIcon;
-                    toolTip1.SetToolTip(warn, "Image sizes do not match.");
-                }
+                    damageFileWarn,
+                    toolTip1);
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using System.Net;
 
 namespace CataclysmModder
 {
@@ -15,6 +16,7 @@ namespace CataclysmModder
         public Form1()
         {
             Instance = this;
+            WinformsUtil.SetRootControl(this);
             Storage.InitializeFileDefs();
 
             InitializeComponent();
@@ -35,11 +37,21 @@ namespace CataclysmModder
             Controls.Add(weaponControl);
             Storage.FileDefSetControl(Storage.FileType.WEAPONS, weaponControl);
 
+            Control projectileControl = new ProjectileValues();
+            projectileControl.Tag = new DataFormTag();
+            projectileControl.Location = mainPanelLocation;
+            projectileControl.Visible = false;
+            Controls.Add(projectileControl);
+            Storage.FileDefSetControl(Storage.FileType.PROJECTILES, projectileControl);
+
             //Load previous workspace
             if (File.Exists(".conf"))
             {
                 StreamReader read = new StreamReader(new FileStream(".conf", FileMode.Open));
-                string path = read.ReadToEnd();
+                string[] cont = read.ReadToEnd().Split('|');
+                string path = cont[0];
+                if (cont.Length >= 2)
+                    ServerQuery.server = cont[1];
                 read.Close();
                 loadFiles(path);
             }
@@ -64,12 +76,8 @@ namespace CataclysmModder
         {
             Text = Text.Split('-')[0] + "- " + path;
 
-            //Remember path
-            StreamWriter writer = new StreamWriter(new FileStream(".conf", FileMode.Create));
-            writer.Write(path);
-            writer.Close();
-
             Storage.LoadFiles(path);
+            SaveConfig();
 
             //Populate list
             filesComboBox.Items.Clear();
@@ -106,6 +114,16 @@ namespace CataclysmModder
                     Storage.SaveOpenFiles();
             }
             return true;
+        }
+
+        public void SaveConfig()
+        {
+            //Remember path
+            StreamWriter writer = new StreamWriter(new FileStream(".conf", FileMode.Create));
+            writer.Write(Storage.WorkingDirectory);
+            writer.Write("|");
+            writer.Write(ServerQuery.server);
+            writer.Close();
         }
 
         private void filesComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -312,6 +330,38 @@ namespace CataclysmModder
         private void testAllItemsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Storage.TestAllItems();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            //Upload the current file to the server
+            if (new ServerQuery().ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string filerel = Storage.CurrentFileName;
+                if (!ServerQuery.server.StartsWith("http"))
+                    ServerQuery.server = "http://" + ServerQuery.server;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri(Path.Combine(ServerQuery.server, "uploadData", filerel)));
+                string ser = Storage.SerializeFile(Storage.CurrentFileName);
+                if (string.IsNullOrEmpty(ser))
+                {
+                    MessageBox.Show("Upload failed (non-network reasons).");
+                }
+                else
+                {
+                    string data = Client.UrlEncode(ser); //"content=" + 
+                    try
+                    {
+                        StreamReader read = new StreamReader(Client.Post(request, data));
+                        string response = read.ReadToEnd();
+                        if (response.Equals("ic"))
+                            MessageBox.Show("File uploaded.");
+                    }
+                    catch (WebException ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+                }
+            }
         }
     }
 

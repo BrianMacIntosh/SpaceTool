@@ -291,10 +291,10 @@ namespace CataclysmModder
 
             //Editing control needs to be set in Form1 ctor using FileDefSetControl
 
-            fileDef[(int)FileType.SHIPS] = new CataFile("id");
-            fileDef[(int)FileType.WEAPONS] = new CataFile("id");
-            fileDef[(int)FileType.PROJECTILES] = new CataFile("id");
-            fileDef[(int)FileType.MAPELEMENTS] = new CataFile("id");
+            fileDef[(int)FileType.SHIPS] = new CataFile("id", new JsonSchema("CataclysmModder.schemas.ship.txt"));
+            fileDef[(int)FileType.WEAPONS] = new CataFile("id", new JsonSchema("CataclysmModder.schemas.weapon.txt"));
+            fileDef[(int)FileType.PROJECTILES] = new CataFile("id", new JsonSchema("CataclysmModder.schemas.projectile.txt"));
+            fileDef[(int)FileType.MAPELEMENTS] = new CataFile("id", new JsonSchema("CataclysmModder.schemas.element.txt"));
             fileDef[(int)FileType.MAP] = new CataFile();
             fileDef[(int)FileType.DEFINITION] = new CataFile();
         }
@@ -454,9 +454,8 @@ namespace CataclysmModder
             }
         }
 
-        public static void SaveJsonItem(string file, object obj, JsonSchema schema, string pivotKey, int bracketBlockLevel = 1)
+        public static void SaveJsonItem(StreamWriter write, object obj, JsonSchema schema, string pivotKey, int bracketBlockLevel = 1)
         {
-            StreamWriter write = new StreamWriter(new FileStream(Path.Combine(workspacePath, file), FileMode.Create));
             try
             {
                 StringBuilder sb = new StringBuilder("[");
@@ -480,10 +479,6 @@ namespace CataclysmModder
             {
                 //TODO: error message
                 return;
-            }
-            finally
-            {
-                write.Close();
             }
         }
 
@@ -590,7 +585,10 @@ namespace CataclysmModder
         public static void SaveOpenFiles()
         {
             foreach (string file in openFiles)
-                SaveFile(file, false);
+            {
+                if (fileDef[(int)GetFileType(file)].schema != null)
+                    SaveFile(file, false);
+            }
             unsavedChanges = false;
             MessageBox.Show("All files saved.", "Saving", MessageBoxButtons.OK);
         }
@@ -607,10 +605,59 @@ namespace CataclysmModder
                 c++;
             }
 
-            if (!Serialize(serialData, file, ftype))
+            using (StreamWriter write = new StreamWriter(GetFilestreamForFile(file)))
             {
-                MessageBox.Show("Serializing this file is not supported.", "Error", MessageBoxButtons.OK);
-                return;
+                if (!Serialize(serialData, write, ftype))
+                {
+                    MessageBox.Show("Serializing this file is not supported.", "Error", MessageBoxButtons.OK);
+                    return;
+                }
+            }
+        }
+
+        private static FileStream GetFilestreamForFile(string file)
+        {
+            return new FileStream(Path.Combine(workspacePath, file), FileMode.Create);
+        }
+
+        public static string SerializeFile(string file)
+        {
+            int fileIndex = -1;
+            for (int c = 0; c < OpenFiles.Length; c++)
+                if (file.Equals(OpenFiles[c]))
+                {
+                    fileIndex = c;
+                    break;
+                }
+            if (fileIndex == -1)
+            {
+                //TODO: error
+                return "";
+            }
+            FileType ftype = GetFileTypeForOpenFile(fileIndex);
+
+            //Put data into serializable format
+            object[] serialData = new object[openItems[fileIndex].Count];
+            int d = 0;
+            foreach (ItemDataWrapper v in openItems[fileIndex])
+            {
+                serialData[d] = v.data;
+                d++;
+            }
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (StreamWriter write = new StreamWriter(ms))
+                {
+                    if (!Serialize(serialData, write, ftype))
+                    {
+                        MessageBox.Show("Serializing this file is not supported.", "Error", MessageBoxButtons.OK);
+                        write.Close();
+                        return "";
+                    }
+                    write.Flush();
+                    return Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)ms.Length);
+                }
             }
         }
 
@@ -639,11 +686,14 @@ namespace CataclysmModder
                 d++;
             }
 
-            if (!Serialize(serialData, file, ftype))
+            using (StreamWriter write = new StreamWriter(GetFilestreamForFile(file)))
             {
-                if (standalone)
-                    MessageBox.Show("Serializing this file is not supported.", "Error", MessageBoxButtons.OK);
-                return;
+                if (!Serialize(serialData, write, ftype))
+                {
+                    if (standalone)
+                        MessageBox.Show("Serializing this file is not supported.", "Error", MessageBoxButtons.OK);
+                    return;
+                }
             }
 
             //Mark items as saved
@@ -664,12 +714,12 @@ namespace CataclysmModder
             }
         }
 
-        private static bool Serialize(object[] serialData, string file, FileType ftype)
+        private static bool Serialize(object[] serialData, StreamWriter write, FileType ftype)
         {
             if (ftype != FileType.NONE
                 && fileDef[(int)ftype] != null && fileDef[(int)ftype].schema != null)
             {
-                SaveJsonItem(file, serialData, fileDef[(int)ftype].schema, "");
+                SaveJsonItem(write, serialData, fileDef[(int)ftype].schema, "");
             }
             else
             {
@@ -683,17 +733,18 @@ namespace CataclysmModder
         /// </summary>
         public static void ItemApplyValue(string key, object value, bool mandatory)
         {
+            Dictionary<string, object> final = WinformsUtil.NavigateKeyPath(CurrentItemData, ref key);
             if (!mandatory &&
                 (value.Equals("") ||
                 value == null ||
                 (value is object[] && ((object[])value).Length == 0)))
             {
-                if (CurrentItemData.ContainsKey(key))
-                    CurrentItemData.Remove(key);
+                if (final.ContainsKey(key))
+                    final.Remove(key);
             }
-            else if (!CurrentItemData.ContainsKey(key) || value != CurrentItemData[key])
+            else if (!final.ContainsKey(key) || value != final[key])
             {
-                CurrentItemData[key] = value;
+                final[key] = value;
                 unsavedChanges = true;
             }
 

@@ -1,0 +1,8 @@
+﻿id
+name
+desc
+textureFile
+textureSize
+wclass
+stat
+onFire

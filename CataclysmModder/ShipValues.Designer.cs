@@ -30,9 +30,30 @@
         {
             this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.woffsetYNumeric = new System.Windows.Forms.NumericUpDown();
+            this.woffsetXNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label16 = new System.Windows.Forms.Label();
+            this.wclassNumeric = new System.Windows.Forms.NumericUpDown();
+            this.wtemplateTextBox = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.deleteHardpointButton = new System.Windows.Forms.Button();
+            this.newHardpointButton = new System.Windows.Forms.Button();
+            this.hardpointsListBox = new System.Windows.Forms.ListBox();
             this.idTextBox = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.minDecelNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label14 = new System.Windows.Forms.Label();
+            this.maxAccelNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label13 = new System.Windows.Forms.Label();
+            this.minSpeedNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
+            this.maxSpeedNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.labelblah = new System.Windows.Forms.Label();
             this.coreRadiusNumeric = new System.Windows.Forms.NumericUpDown();
@@ -61,16 +82,17 @@
             this.nameTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.label11 = new System.Windows.Forms.Label();
-            this.maxSpeedNumeric = new System.Windows.Forms.NumericUpDown();
-            this.minSpeedNumeric = new System.Windows.Forms.NumericUpDown();
-            this.label12 = new System.Windows.Forms.Label();
-            this.maxAccelNumeric = new System.Windows.Forms.NumericUpDown();
-            this.label13 = new System.Windows.Forms.Label();
-            this.minDecelNumeric = new System.Windows.Forms.NumericUpDown();
-            this.label14 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.woffsetYNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.woffsetXNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.wclassNumeric)).BeginInit();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minDecelNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxAccelNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minSpeedNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxSpeedNumeric)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.coreRadiusNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.coreXNumeric)).BeginInit();
@@ -81,14 +103,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.damageFileWarn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.maskFileWarn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textureFileWarn)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.maxSpeedNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minSpeedNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.maxAccelNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minDecelNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.groupBox5);
             this.groupBox1.Controls.Add(this.idTextBox);
             this.groupBox1.Controls.Add(this.label10);
             this.groupBox1.Controls.Add(this.groupBox4);
@@ -111,10 +130,170 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(4, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(619, 290);
+            this.groupBox1.Size = new System.Drawing.Size(619, 419);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Ship Properties";
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.groupBox6);
+            this.groupBox5.Controls.Add(this.label16);
+            this.groupBox5.Controls.Add(this.wclassNumeric);
+            this.groupBox5.Controls.Add(this.wtemplateTextBox);
+            this.groupBox5.Controls.Add(this.label15);
+            this.groupBox5.Controls.Add(this.deleteHardpointButton);
+            this.groupBox5.Controls.Add(this.newHardpointButton);
+            this.groupBox5.Controls.Add(this.hardpointsListBox);
+            this.groupBox5.Location = new System.Drawing.Point(10, 287);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(603, 121);
+            this.groupBox5.TabIndex = 25;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Hardpoints";
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.label17);
+            this.groupBox6.Controls.Add(this.label18);
+            this.groupBox6.Controls.Add(this.woffsetYNumeric);
+            this.groupBox6.Controls.Add(this.woffsetXNumeric);
+            this.groupBox6.Location = new System.Drawing.Point(444, 19);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(94, 69);
+            this.groupBox6.TabIndex = 21;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Offset";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(6, 16);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(12, 13);
+            this.label17.TabIndex = 17;
+            this.label17.Text = "x";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(6, 42);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(12, 13);
+            this.label18.TabIndex = 19;
+            this.label18.Text = "y";
+            // 
+            // woffsetYNumeric
+            // 
+            this.woffsetYNumeric.Increment = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            this.woffsetYNumeric.Location = new System.Drawing.Point(27, 41);
+            this.woffsetYNumeric.Maximum = new decimal(new int[] {
+            4096,
+            0,
+            0,
+            0});
+            this.woffsetYNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.woffsetYNumeric.Name = "woffsetYNumeric";
+            this.woffsetYNumeric.Size = new System.Drawing.Size(58, 20);
+            this.woffsetYNumeric.TabIndex = 18;
+            this.woffsetYNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // woffsetXNumeric
+            // 
+            this.woffsetXNumeric.Increment = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            this.woffsetXNumeric.Location = new System.Drawing.Point(27, 15);
+            this.woffsetXNumeric.Maximum = new decimal(new int[] {
+            4096,
+            0,
+            0,
+            0});
+            this.woffsetXNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.woffsetXNumeric.Name = "woffsetXNumeric";
+            this.woffsetXNumeric.Size = new System.Drawing.Size(58, 20);
+            this.woffsetXNumeric.TabIndex = 16;
+            this.woffsetXNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(263, 47);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(55, 13);
+            this.label16.TabIndex = 6;
+            this.label16.Text = "Max Class";
+            // 
+            // wclassNumeric
+            // 
+            this.wclassNumeric.Location = new System.Drawing.Point(326, 47);
+            this.wclassNumeric.Name = "wclassNumeric";
+            this.wclassNumeric.Size = new System.Drawing.Size(67, 20);
+            this.wclassNumeric.TabIndex = 5;
+            // 
+            // wtemplateTextBox
+            // 
+            this.wtemplateTextBox.Location = new System.Drawing.Point(326, 20);
+            this.wtemplateTextBox.Name = "wtemplateTextBox";
+            this.wtemplateTextBox.Size = new System.Drawing.Size(112, 20);
+            this.wtemplateTextBox.TabIndex = 4;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(224, 20);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(95, 13);
+            this.label15.TabIndex = 3;
+            this.label15.Text = "Weapon Template";
+            // 
+            // deleteHardpointButton
+            // 
+            this.deleteHardpointButton.Location = new System.Drawing.Point(130, 50);
+            this.deleteHardpointButton.Name = "deleteHardpointButton";
+            this.deleteHardpointButton.Size = new System.Drawing.Size(75, 23);
+            this.deleteHardpointButton.TabIndex = 2;
+            this.deleteHardpointButton.Text = "Delete";
+            this.deleteHardpointButton.UseVisualStyleBackColor = true;
+            // 
+            // newHardpointButton
+            // 
+            this.newHardpointButton.Location = new System.Drawing.Point(130, 20);
+            this.newHardpointButton.Name = "newHardpointButton";
+            this.newHardpointButton.Size = new System.Drawing.Size(75, 23);
+            this.newHardpointButton.TabIndex = 1;
+            this.newHardpointButton.Text = "New";
+            this.newHardpointButton.UseVisualStyleBackColor = true;
+            // 
+            // hardpointsListBox
+            // 
+            this.hardpointsListBox.FormattingEnabled = true;
+            this.hardpointsListBox.Location = new System.Drawing.Point(7, 20);
+            this.hardpointsListBox.Name = "hardpointsListBox";
+            this.hardpointsListBox.Size = new System.Drawing.Size(116, 95);
+            this.hardpointsListBox.TabIndex = 0;
             // 
             // idTextBox
             // 
@@ -144,10 +323,118 @@
             this.groupBox4.Controls.Add(this.label11);
             this.groupBox4.Location = new System.Drawing.Point(335, 99);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(278, 185);
+            this.groupBox4.Size = new System.Drawing.Size(278, 182);
             this.groupBox4.TabIndex = 22;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Stat";
+            // 
+            // minDecelNumeric
+            // 
+            this.minDecelNumeric.DecimalPlaces = 2;
+            this.minDecelNumeric.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.minDecelNumeric.Location = new System.Drawing.Point(75, 100);
+            this.minDecelNumeric.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.minDecelNumeric.Name = "minDecelNumeric";
+            this.minDecelNumeric.Size = new System.Drawing.Size(120, 20);
+            this.minDecelNumeric.TabIndex = 7;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(13, 100);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(55, 13);
+            this.label14.TabIndex = 6;
+            this.label14.Text = "Min Decel";
+            // 
+            // maxAccelNumeric
+            // 
+            this.maxAccelNumeric.DecimalPlaces = 2;
+            this.maxAccelNumeric.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.maxAccelNumeric.Location = new System.Drawing.Point(75, 74);
+            this.maxAccelNumeric.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.maxAccelNumeric.Name = "maxAccelNumeric";
+            this.maxAccelNumeric.Size = new System.Drawing.Size(120, 20);
+            this.maxAccelNumeric.TabIndex = 5;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(34, 75);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(34, 13);
+            this.label13.TabIndex = 4;
+            this.label13.Text = "Accel";
+            // 
+            // minSpeedNumeric
+            // 
+            this.minSpeedNumeric.DecimalPlaces = 2;
+            this.minSpeedNumeric.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.minSpeedNumeric.Location = new System.Drawing.Point(75, 48);
+            this.minSpeedNumeric.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.minSpeedNumeric.Name = "minSpeedNumeric";
+            this.minSpeedNumeric.Size = new System.Drawing.Size(120, 20);
+            this.minSpeedNumeric.TabIndex = 3;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(10, 48);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(58, 13);
+            this.label12.TabIndex = 2;
+            this.label12.Text = "Min Speed";
+            // 
+            // maxSpeedNumeric
+            // 
+            this.maxSpeedNumeric.DecimalPlaces = 2;
+            this.maxSpeedNumeric.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.maxSpeedNumeric.Location = new System.Drawing.Point(75, 20);
+            this.maxSpeedNumeric.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.maxSpeedNumeric.Name = "maxSpeedNumeric";
+            this.maxSpeedNumeric.Size = new System.Drawing.Size(120, 20);
+            this.maxSpeedNumeric.TabIndex = 1;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(7, 20);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(61, 13);
+            this.label11.TabIndex = 0;
+            this.label11.Text = "Max Speed";
             // 
             // groupBox3
             // 
@@ -469,125 +756,28 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Name";
             // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(7, 20);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(61, 13);
-            this.label11.TabIndex = 0;
-            this.label11.Text = "Max Speed";
-            // 
-            // maxSpeedNumeric
-            // 
-            this.maxSpeedNumeric.DecimalPlaces = 2;
-            this.maxSpeedNumeric.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.maxSpeedNumeric.Location = new System.Drawing.Point(75, 20);
-            this.maxSpeedNumeric.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.maxSpeedNumeric.Name = "maxSpeedNumeric";
-            this.maxSpeedNumeric.Size = new System.Drawing.Size(120, 20);
-            this.maxSpeedNumeric.TabIndex = 1;
-            // 
-            // minSpeedNumeric
-            // 
-            this.minSpeedNumeric.DecimalPlaces = 2;
-            this.minSpeedNumeric.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.minSpeedNumeric.Location = new System.Drawing.Point(75, 48);
-            this.minSpeedNumeric.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.minSpeedNumeric.Name = "minSpeedNumeric";
-            this.minSpeedNumeric.Size = new System.Drawing.Size(120, 20);
-            this.minSpeedNumeric.TabIndex = 3;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(10, 48);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(58, 13);
-            this.label12.TabIndex = 2;
-            this.label12.Text = "Min Speed";
-            // 
-            // maxAccelNumeric
-            // 
-            this.maxAccelNumeric.DecimalPlaces = 2;
-            this.maxAccelNumeric.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.maxAccelNumeric.Location = new System.Drawing.Point(75, 74);
-            this.maxAccelNumeric.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.maxAccelNumeric.Name = "maxAccelNumeric";
-            this.maxAccelNumeric.Size = new System.Drawing.Size(120, 20);
-            this.maxAccelNumeric.TabIndex = 5;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(34, 75);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(34, 13);
-            this.label13.TabIndex = 4;
-            this.label13.Text = "Accel";
-            // 
-            // minDecelNumeric
-            // 
-            this.minDecelNumeric.DecimalPlaces = 2;
-            this.minDecelNumeric.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.minDecelNumeric.Location = new System.Drawing.Point(75, 100);
-            this.minDecelNumeric.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.minDecelNumeric.Name = "minDecelNumeric";
-            this.minDecelNumeric.Size = new System.Drawing.Size(120, 20);
-            this.minDecelNumeric.TabIndex = 7;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(13, 100);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(55, 13);
-            this.label14.TabIndex = 6;
-            this.label14.Text = "Min Decel";
-            // 
             // ShipValues
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupBox1);
             this.Name = "ShipValues";
-            this.Size = new System.Drawing.Size(626, 296);
+            this.Size = new System.Drawing.Size(626, 425);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.woffsetYNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.woffsetXNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.wclassNumeric)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minDecelNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxAccelNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minSpeedNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxSpeedNumeric)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.coreRadiusNumeric)).EndInit();
@@ -600,10 +790,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.damageFileWarn)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.maskFileWarn)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textureFileWarn)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.maxSpeedNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minSpeedNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.maxAccelNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minDecelNumeric)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -650,6 +836,19 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.NumericUpDown maxSpeedNumeric;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.NumericUpDown woffsetYNumeric;
+        private System.Windows.Forms.NumericUpDown woffsetXNumeric;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.NumericUpDown wclassNumeric;
+        private System.Windows.Forms.TextBox wtemplateTextBox;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Button deleteHardpointButton;
+        private System.Windows.Forms.Button newHardpointButton;
+        private System.Windows.Forms.ListBox hardpointsListBox;
 
     }
 }

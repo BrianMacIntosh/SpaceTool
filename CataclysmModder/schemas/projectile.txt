@@ -1,0 +1,9 @@
+﻿id
+type
+textureFile
+textureSize
+fixedOrientation
+collider
+areaImpactShake
+targetImpactShake
+stat

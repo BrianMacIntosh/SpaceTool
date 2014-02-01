@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="CataColor.cs" />
     <Compile Include="CataFile.cs" />
+    <Compile Include="Client.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="ExportItemsForm.cs">
       <SubType>Form</SubType>
@@ -72,6 +73,18 @@
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectileValues.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ProjectileValues.Designer.cs">
+      <DependentUpon>ProjectileValues.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ServerQuery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ServerQuery.Designer.cs">
+      <DependentUpon>ServerQuery.cs</DependentUpon>
     </Compile>
     <Compile Include="ShipValues.cs">
       <SubType>UserControl</SubType>
@@ -107,6 +120,12 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ProjectileValues.resx">
+      <DependentUpon>ProjectileValues.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ServerQuery.resx">
+      <DependentUpon>ServerQuery.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ShipValues.resx">
       <DependentUpon>ShipValues.cs</DependentUpon>
     </EmbeddedResource>
@@ -138,19 +157,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="schemas\items.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="schemas\item_group.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="schemas\recipes.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="schemas\professions.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="ico32.ico" />
+    <EmbeddedResource Include="schemas\definition.txt" />
+    <EmbeddedResource Include="schemas\element.txt" />
+    <EmbeddedResource Include="schemas\projectile.txt" />
+    <EmbeddedResource Include="schemas\weapon.txt" />
     <None Include="icons\Critical.png" />
     <Content Include="icons\ico16.ico" />
     <Content Include="icons\ico32.ico" />
@@ -158,7 +169,7 @@
     <None Include="icons\OK.png" />
     <None Include="icons\Serious.png" />
     <None Include="icons\Warning.png" />
-    <Content Include="schemas\vehicle_parts.txt" />
+    <EmbeddedResource Include="schemas\ship.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
